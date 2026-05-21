@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from '@tanstack/react-router'
 import { AssistantRuntimeProvider } from '@assistant-ui/react'
 import type { ApiClient } from '@/api/client'
@@ -33,7 +33,8 @@ import { useSessionActions } from '@/hooks/mutations/useSessionActions'
 import { useCodexModels } from '@/hooks/queries/useCodexModels'
 import { useOpencodeModels } from '@/hooks/queries/useOpencodeModels'
 import { useVoiceOptional } from '@/lib/voice-context'
-import { RealtimeVoiceSession, registerSessionStore, registerVoiceHooksStore, voiceHooks } from '@/realtime'
+import { registerSessionStore, registerVoiceHooksStore, voiceHooks } from '@/realtime'
+const LazyRealtimeVoiceSession = React.lazy(() => import('@/realtime').then(m => ({ default: m.RealtimeVoiceSession })))
 import { isRemoteTerminalSupported } from '@/utils/terminalSupport'
 
 /**
@@ -647,13 +648,15 @@ export function SessionChat(props: {
                 </div>
             </AssistantRuntimeProvider>
 
-            {/* Voice session component - renders nothing but initializes ElevenLabs */}
+            {/* Voice session component - lazy loaded, renders nothing but initializes ElevenLabs */}
             {voice && (
-                <RealtimeVoiceSession
-                    api={props.api}
-                    micMuted={voice.micMuted}
-                    onStatusChange={voice.setStatus}
-                />
+                <React.Suspense fallback={null}>
+                    <LazyRealtimeVoiceSession
+                        api={props.api}
+                        micMuted={voice.micMuted}
+                        onStatusChange={voice.setStatus}
+                    />
+                </React.Suspense>
             )}
         </div>
     )
