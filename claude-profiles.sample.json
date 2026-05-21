@@ -1,0 +1,26 @@
+{
+  "profiles": [
+    {
+      "name": "default",
+      "label": "Default Claude"
+    },
+    {
+      "name": "aliyun",
+      "label": "Aliyun DashScope (Qwen)",
+      "command": "/home/你的用户名/bin/claude-qwen",
+      "env": {
+        "OPENAI_BASE_URL": "https://dashscope.aliyuncs.com/compatible-mode/v1",
+        "OPENAI_MODEL": "qwen3-coder-plus"
+      }
+    },
+    {
+      "name": "deepseek",
+      "label": "DeepSeek",
+      "command": "/home/你的用户名/bin/claude-ds",
+      "env": {
+        "OPENAI_BASE_URL": "https://api.deepseek.com/v1",
+        "OPENAI_MODEL": "deepseek-chat"
+      }
+    }
+  ]
+}
