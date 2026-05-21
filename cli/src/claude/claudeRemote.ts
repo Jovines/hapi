@@ -11,6 +11,7 @@ import { systemPrompt } from "./utils/systemPrompt";
 import { PermissionResult } from "./sdk/types";
 import { getHapiBlobsDir } from "@/constants/uploadPaths";
 import { getDefaultClaudeCodePath } from "./sdk/utils";
+import { resolveProfile } from "./utils/profile";
 
 export async function claudeRemote(opts: {
 
@@ -23,6 +24,7 @@ export async function claudeRemote(opts: {
     allowedTools: string[],
     hookSettingsPath: string,
     signal?: AbortSignal,
+    profile?: string,
     canCallTool: (toolName: string, input: unknown, mode: EnhancedMode, options: { signal: AbortSignal }) => Promise<PermissionResult>,
 
     // Dynamic parameters
@@ -71,7 +73,15 @@ export async function claudeRemote(opts: {
         }
     }
 
+    // Resolve profile (command override + env vars)
+    const resolvedProfile = resolveProfile(opts.profile);
+
     // Set environment variables for Claude Code SDK
+    if (resolvedProfile.env) {
+        Object.entries(resolvedProfile.env).forEach(([key, value]) => {
+            process.env[key] = value;
+        });
+    }
     if (opts.claudeEnvVars) {
         Object.entries(opts.claudeEnvVars).forEach(([key, value]) => {
             process.env[key] = value;
@@ -136,7 +146,7 @@ export async function claudeRemote(opts: {
         disallowedTools: initial.mode.disallowedTools,
         canCallTool: (toolName: string, input: unknown, options: { signal: AbortSignal }) => opts.canCallTool(toolName, input, mode, options),
         abort: opts.signal,
-        pathToClaudeCodeExecutable: getDefaultClaudeCodePath(),
+        pathToClaudeCodeExecutable: resolvedProfile.command ?? getDefaultClaudeCodePath(),
         settingsPath: opts.hookSettingsPath,
         additionalDirectories: [getHapiBlobsDir()],
     }

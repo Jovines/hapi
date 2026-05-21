@@ -34,6 +34,7 @@ export interface StartOptions {
     existingSessionId?: string
     workingDirectory?: string
     resumeSessionId?: string
+    profile?: string
 }
 
 export async function runClaude(options: StartOptions = {}): Promise<void> {
@@ -433,7 +434,8 @@ export async function runClaude(options: StartOptions = {}): Promise<void> {
             claudeArgs: options.claudeArgs,
             startedBy,
             resumeSessionId: options.resumeSessionId,
-            hookSettingsPath
+            hookSettingsPath,
+            profile: options.profile
         });
     } catch (error) {
         loopError = error;

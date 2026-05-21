@@ -301,6 +301,7 @@ class ClaudeRemoteLauncher extends RemoteLauncherBase {
                         allowedTools: session.allowedTools ?? [],
                         mcpServers: session.mcpServers,
                         hookSettingsPath: session.hookSettingsPath,
+                        profile: session.profile,
                         canCallTool: permissionHandler.handleToolCall,
                         isAborted: (toolCallId: string) => {
                             return permissionHandler.isAborted(toolCallId);
