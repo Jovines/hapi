@@ -8,6 +8,21 @@ import type { SyncEngine } from '../../sync/syncEngine'
 import type { WebAppEnv } from '../middleware/auth'
 import { requireMachine } from './guards'
 
+const spawnBodySchema = z.object({
+    directory: z.string().min(1),
+    agent: z.enum(['claude', 'codex', 'cursor', 'gemini', 'opencode']).optional(),
+    model: z.string().optional(),
+    effort: z.string().optional(),
+    modelReasoningEffort: z.string().optional(),
+    yolo: z.boolean().optional(),
+    sessionType: z.enum(['simple', 'worktree']).optional(),
+    worktreeName: z.string().optional(),
+    profile: z.string().optional()
+})
+
+const pathsExistsSchema = z.object({
+    paths: z.array(z.string().min(1)).max(1000)
+})
 export function createMachinesRoutes(getSyncEngine: () => SyncEngine | null): Hono<WebAppEnv> {
     const app = new Hono<WebAppEnv>()
 
@@ -50,7 +65,9 @@ export function createMachinesRoutes(getSyncEngine: () => SyncEngine | null): Ho
             parsed.data.sessionType,
             parsed.data.worktreeName,
             undefined,
-            parsed.data.effort
+            parsed.data.effort,
+            undefined,
+            parsed.data.profile
         )
         return c.json(result)
     })

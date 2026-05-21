@@ -9,6 +9,7 @@ import { spawnWithTerminalGuard } from "@/utils/spawnWithTerminalGuard";
 import { getHapiBlobsDir } from "@/constants/uploadPaths";
 import { stripNewlinesForWindowsShellArg } from "@/utils/shellEscape";
 import { getDefaultClaudeCodePath } from "./sdk/utils";
+import { resolveProfile } from "./utils/profile";
 
 export async function claudeLocal(opts: {
     abort: AbortSignal,
@@ -19,6 +20,7 @@ export async function claudeLocal(opts: {
     claudeArgs?: string[]
     allowedTools?: string[]
     hookSettingsPath: string
+    profile?: string
 }) {
 
     // Ensure project directory exists
@@ -83,17 +85,25 @@ export async function claudeLocal(opts: {
     // excludes the session from `claude --resume`. Destructure it out
     // so the child uses its own default entrypoint.
     const { CLAUDE_CODE_ENTRYPOINT: _, ...cleanEnv } = process.env
+
+    // Resolve profile (command override + env vars)
+    const resolvedProfile = resolveProfile(opts.profile);
+
     const env = {
         ...cleanEnv,
         DISABLE_AUTOUPDATER: '1',
+        ...(resolvedProfile.env ?? {}),
         ...opts.claudeEnvVars
     }
 
     logger.debug(`[ClaudeLocal] Spawning claude with args: ${JSON.stringify(args)}`);
 
-    // Get Claude executable path (absolute path on Windows for shell: false)
-    const claudeCommand = getDefaultClaudeCodePath();
-    logger.debug(`[ClaudeLocal] Using claude executable: ${claudeCommand}`);
+    // Get Claude executable path:
+    //  1. Profile command (if set)
+    //  2. HAPI_CLAUDE_PATH env var
+    //  3. Global claude on PATH
+    const claudeCommand = resolvedProfile.command ?? getDefaultClaudeCodePath();
+    logger.debug(`[ClaudeLocal] Using claude executable: ${claudeCommand}, profile: ${opts.profile ?? 'default'}`);
 
     // Spawn the process
     try {

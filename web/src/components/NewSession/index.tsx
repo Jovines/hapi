@@ -19,6 +19,8 @@ import { MachineSelector } from './MachineSelector'
 import { ModelSelector } from './ModelSelector'
 import { OpencodeModelSelector } from './OpencodeModelSelector'
 import { ClaudeEffortSelector } from './ClaudeEffortSelector'
+import { ProfileSelector } from './ProfileSelector'
+import { useClaudeProfiles } from '@/hooks/queries/useClaudeProfiles'
 import { shouldEnableOpencodeModelDiscovery } from './opencodeModelsGate'
 import { ReasoningEffortSelector } from './ReasoningEffortSelector'
 import {
@@ -59,6 +61,7 @@ export function NewSession(props: {
     const [yoloMode, setYoloMode] = useState(loadPreferredYoloMode)
     const [sessionType, setSessionType] = useState<SessionType>('simple')
     const [worktreeName, setWorktreeName] = useState('')
+    const [profile, setProfile] = useState('')
     const [directoryCreationConfirmed, setDirectoryCreationConfirmed] = useState(false)
     const [error, setError] = useState<string | null>(null)
     const worktreeInputRef = useRef<HTMLInputElement>(null)
@@ -72,6 +75,7 @@ export function NewSession(props: {
     useEffect(() => {
         setModel('auto')
         setEffort('auto')
+        setProfile('')
     }, [agent])
 
     useEffect(() => {
@@ -109,6 +113,7 @@ export function NewSession(props: {
         machineId,
         enabled: agent === 'codex' && Boolean(machineId)
     })
+    const { data: profiles = [] } = useClaudeProfiles(props.api)
     const [opencodeSelectedModel, setOpencodeSelectedModel] = useState<string | null>(null)
     const runnerSpawnError = useMemo(
         () => formatRunnerSpawnError(selectedMachine),
@@ -331,7 +336,8 @@ export function NewSession(props: {
                 modelReasoningEffort: resolvedModelReasoningEffort,
                 yolo: yoloMode,
                 sessionType,
-                worktreeName: sessionType === 'worktree' ? (worktreeName.trim() || undefined) : undefined
+                worktreeName: sessionType === 'worktree' ? (worktreeName.trim() || undefined) : undefined,
+                profile: profile || undefined
             })
 
             if (result.type === 'success') {
@@ -425,6 +431,13 @@ export function NewSession(props: {
                 effort={effort}
                 isDisabled={isFormDisabled}
                 onEffortChange={setEffort}
+            />
+            <ProfileSelector
+                profile={profile}
+                profiles={profiles}
+                isDisabled={isFormDisabled}
+                isClaude={agent === 'claude'}
+                onProfileChange={setProfile}
             />
             <ReasoningEffortSelector
                 agent={agent}
