@@ -15,8 +15,8 @@ export {
 // Client tools
 export { realtimeClientTools, registerSessionStore } from './realtimeClientTools'
 
-// Voice session component
-export { RealtimeVoiceSession, type RealtimeVoiceSessionProps } from './RealtimeVoiceSession'
+// Voice session component — NOT re-exported from barrel to prevent eager loading of @elevenlabs/react.
+// Import directly via: React.lazy(() => import('@/realtime/RealtimeVoiceSession'))
 
 // Voice hooks
 export { voiceHooks, registerVoiceHooksStore } from './hooks/voiceHooks'

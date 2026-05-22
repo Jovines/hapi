@@ -37,10 +37,6 @@ function getVendorChunkName(id: string): string | undefined {
         return 'vendor-assistant'
     }
 
-    if (id.includes('/node_modules/@elevenlabs/react/')) {
-        return 'vendor-voice'
-    }
-
     return undefined
 }
 

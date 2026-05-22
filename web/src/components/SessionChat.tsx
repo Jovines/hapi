@@ -34,7 +34,7 @@ import { useCodexModels } from '@/hooks/queries/useCodexModels'
 import { useOpencodeModels } from '@/hooks/queries/useOpencodeModels'
 import { useVoiceOptional } from '@/lib/voice-context'
 import { registerSessionStore, registerVoiceHooksStore, voiceHooks } from '@/realtime'
-const LazyRealtimeVoiceSession = React.lazy(() => import('@/realtime').then(m => ({ default: m.RealtimeVoiceSession })))
+const LazyRealtimeVoiceSession = React.lazy(() => import('@/realtime/RealtimeVoiceSession'))
 import { isRemoteTerminalSupported } from '@/utils/terminalSupport'
 
 /**
