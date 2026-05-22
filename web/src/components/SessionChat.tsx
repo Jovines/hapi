@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from '@tanstack/react-router'
 import { AssistantRuntimeProvider } from '@assistant-ui/react'
 import type { ApiClient } from '@/api/client'
@@ -34,7 +34,8 @@ import { useCodexModels } from '@/hooks/queries/useCodexModels'
 import { useOpencodeModels } from '@/hooks/queries/useOpencodeModels'
 import { useVoiceOptional } from '@/lib/voice-context'
 import { registerSessionStore, registerVoiceHooksStore, voiceHooks } from '@/realtime'
-const LazyRealtimeVoiceSession = React.lazy(() => import('@/realtime/RealtimeVoiceSession'))
+// Voice session component (RealtimeVoiceSession) is disabled because @elevenlabs/react
+// causes React crashes regardless of import style (static, React.lazy, or barrel export).
 import { isRemoteTerminalSupported } from '@/utils/terminalSupport'
 
 /**
@@ -648,16 +649,9 @@ export function SessionChat(props: {
                 </div>
             </AssistantRuntimeProvider>
 
-            {/* Voice session component - lazy loaded, renders nothing but initializes ElevenLabs */}
-            {voice && (
-                <React.Suspense fallback={null}>
-                    <LazyRealtimeVoiceSession
-                        api={props.api}
-                        micMuted={voice.micMuted}
-                        onStatusChange={voice.setStatus}
-                    />
-                </React.Suspense>
-            )}
+            {/* Voice session (RealtimeVoiceSession) is disabled — @elevenlabs/react
+                 causes "Cannot convert object to primitive value" during resolveLazy
+                 in dev, and React error #306 in production, even when lazy-loaded. */}
         </div>
     )
 }
