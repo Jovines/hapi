@@ -14,7 +14,6 @@ import { getDefaultClaudeCodePath } from "./sdk/utils";
 import { resolveProfile } from "./utils/profile";
 
 export async function claudeRemote(opts: {
-
     // Fixed parameters
     sessionId: string | null,
     path: string,

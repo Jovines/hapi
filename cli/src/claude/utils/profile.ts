@@ -10,6 +10,7 @@
  */
 import { existsSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
+import { logger } from '@/ui/logger'
 
 export interface ClaudeProfile {
     name: string
@@ -29,11 +30,18 @@ function getProfilesPath(): string {
 
 function loadProfilesConfig(): ProfilesConfig | null {
     const path = getProfilesPath()
+    logger.debug(`[Profile] Loading config from: ${path}`)
     try {
-        if (!existsSync(path)) return null
+        if (!existsSync(path)) {
+            logger.debug(`[Profile] Config file not found at: ${path}`)
+            return null
+        }
         const raw = readFileSync(path, 'utf-8')
-        return JSON.parse(raw) as ProfilesConfig
-    } catch {
+        const cfg = JSON.parse(raw) as ProfilesConfig
+        logger.debug(`[Profile] Loaded ${cfg.profiles?.length ?? 0} profiles`)
+        return cfg
+    } catch (e) {
+        logger.debug(`[Profile] Failed to load config: ${e}`)
         return null
     }
 }
@@ -50,10 +58,12 @@ export function resolveProfile(profileName?: string | null): {
     command?: string
     env?: Record<string, string>
 } {
-    if (!profileName || profileName === 'default') return {}
+    // Env var fallback for runner-spawned processes where CLI args may not parse
+    const name = profileName || process.env.HAPI_CLAUDE_PROFILE || null
+    if (!name || name === 'default') return {}
     const cfg = loadProfilesConfig()
     if (!cfg?.profiles) return {}
-    const profile = cfg.profiles.find(p => p.name === profileName)
+    const profile = cfg.profiles.find(p => p.name === name)
     if (!profile) return {}
     return { command: profile.command, env: profile.env }
 }

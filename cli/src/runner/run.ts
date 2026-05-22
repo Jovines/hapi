@@ -378,6 +378,10 @@ export async function startRunner(options: { workspaceRoots?: string[] } = {}): 
           };
         }
 
+        if (options.profile) {
+          extraEnv.HAPI_CLAUDE_PROFILE = options.profile;
+        }
+
         const args = buildCliArgs(agent, options, yolo);
 
         // sessionId reserved for future use
